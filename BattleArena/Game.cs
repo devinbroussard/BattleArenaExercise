@@ -17,18 +17,27 @@ namespace BattleArena
 
     class Game
     {
+        //Initializing variables
         bool gameOver;
         int currentScene;
         Character player;
         Character[] enemies;
         private int currentEnemyIndex = 0;
         private Character currentEnemy;
+        Character strangeMan;
+        Character alien;
 
         /// <summary>
         /// Function that starts the main game loop
         /// </summary>
         public void Run()
         {
+            Start();
+
+            while (!gameOver)
+                Update();
+
+            End();
         }
 
         /// <summary>
@@ -36,6 +45,8 @@ namespace BattleArena
         /// </summary>
         public void Start()
         {
+            //Initializing enemies' stats
+
         }
 
         /// <summary>
@@ -104,6 +115,14 @@ namespace BattleArena
         /// </summary>
         void DisplayCurrentScene()
         {
+            if (currentScene == 0)
+                DisplayMainMenu();
+            if (currentScene == 1)
+                GetPlayerName();
+            if (currentScene == 2)
+                CharacterSelection();
+            if (currentScene == 3)
+                CharacterSelection();
         }
 
         /// <summary>
