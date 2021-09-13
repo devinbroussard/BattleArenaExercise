@@ -190,15 +190,15 @@ namespace BattleArena
         void GetPlayerName()
         {
             Console.WriteLine("Hello, welcome to BattleArena, where you will fight enemies to the death!");
-            Console.WriteLine("Have fun!");
-            Console.ReadKey(true);
-            Console.Clear();
-
             Console.WriteLine("Please enter your name:");
             Console.Write("> ");
             player.name = Console.ReadLine();
 
-            currentScene++;
+            Console.Clear();
+            int input = GetInput($"Hmm...Are you sure {player.name} is your name?", "Yes", "No");
+
+            if (input == 1)
+                currentScene++;
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace BattleArena
         /// </summary>
         public void CharacterSelection()
         {
-            int input = GetInput($"\nOkay, {player.name}, select a class:", "Wizard", "Knight");
+            int input = GetInput($"Okay, {player.name}, select a class:", "Wizard", "Knight");
 
             if (input == 1)
             {
