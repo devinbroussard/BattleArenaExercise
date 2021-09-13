@@ -25,10 +25,6 @@ namespace BattleArena
         Character[] enemies;
         private int currentEnemyIndex = 0;
         private Character currentEnemy;
-        Character strangeMan;
-        Character alien;
-        Character skeleton;
-        Character unclePhil;
 
         /// <summary>
         /// Function that starts the main game loop
@@ -48,26 +44,13 @@ namespace BattleArena
         /// </summary>
         public void Start()
         {
-            //Initializing enemies' stats
-            skeleton.name = "Skeleton";
-            skeleton.health = 10;
-            skeleton.attackPower = 5;
-            skeleton.defensePower = 0;
+            Character skeleton = new Character { name = "Skeleton", health = 10, attackPower = 5, defensePower = 0};
+            Character buffAlien = new Character { name = "Buff Alien", health = 15, attackPower = 30, defensePower = 10 };
+            Character strangeMan = new Character { name = "Strange Man", health = 20, attackPower = 15, defensePower = 5 };
 
-            alien.name = "Buff Alien";
-            alien.health = 15;
-            alien.attackPower = 30;
-            alien.defensePower = 10;
-
-            strangeMan.name = "Strange Man";
-            strangeMan.health = 20;
-            strangeMan.attackPower = 15;
-            strangeMan.defensePower = 5;
-
-            enemies = new Character[] { skeleton, alien, strangeMan };
+            enemies = new Character[] { skeleton, buffAlien, strangeMan };
 
             ResetCurrentEnemy();
-
         }
 
         /// <summary>
@@ -157,8 +140,8 @@ namespace BattleArena
                     CharacterSelection();
                     break;
                 case 2:
-                    Battle(ref currentEnemy);
-                    CheckBattleResults(ref currentEnemy);
+                    Battle();
+                    CheckBattleResults();
                     break;
                 case 3:
                     DisplayMainMenu();
@@ -178,8 +161,7 @@ namespace BattleArena
                 ResetCurrentEnemy();
                 currentScene = 0;
             }
-
-            if (input == 2)
+            else if (input == 2)
                 gameOver = true;
 
         }
@@ -196,7 +178,7 @@ namespace BattleArena
             player.name = Console.ReadLine();
 
             Console.Clear();
-            int input = GetInput($"Hmm...Are you sure {player.name} is your name?", "Yes", "No");
+            int input = GetInput($"Hmm... Are you sure {player.name} is your name?", "Yes", "No");
 
             if (input == 1)
                 currentScene++;
@@ -273,26 +255,24 @@ namespace BattleArena
             return damage;
 
         }
-
+ 
         /// <summary>
         /// Simulates one turn in the current monster fight
         /// </summary>
-        public void Battle(ref Character enemy)
+        public void Battle()
         {
-            while (player.health > 0 && enemy.health > 0)
-            {
                 DisplayStats(player);
-                DisplayStats(enemy);
+                DisplayStats(currentEnemy);
 
-                int input = GetInput($"A {enemy.name} stands in front of you! What will you do:", "Attack", "Dodge");
+                int input = GetInput($"A {currentEnemy.name} stands in front of you! What will you do:", "Attack", "Dodge");
 
                 if (input == 1)
                 {
-                    float playerDamage = Attack(ref player, ref enemy);
-                    Console.WriteLine($"You dealt {playerDamage} damage!");
+                    float damage = Attack(ref player, ref currentEnemy);
+                    Console.WriteLine($"You dealt {damage} damage!");
 
-                    float enemyDamage = Attack(ref enemy, ref player);
-                    Console.WriteLine($"The {enemy.name} dealt {enemyDamage} damage!");
+                    damage = Attack(ref currentEnemy, ref player);
+                    Console.WriteLine($"The {currentEnemy.name} dealt {damage} damage!");
                     Console.ReadKey(true);
                     Console.Clear();
                 }
@@ -302,36 +282,27 @@ namespace BattleArena
                     Console.ReadKey(true);
                     Console.Clear();
                 }
-            }
         }
 
         /// <summary>
         /// Checks to see if either the player or the enemy has won the current battle.
         /// Updates the game based on who won the battle..
         /// </summary>
-        void CheckBattleResults(ref Character enemy)
+        void CheckBattleResults()
         {
             if (player.health == 0)
             {
                 Console.WriteLine("You died!");
                 Console.WriteLine("Game over!");
                 Console.ReadKey(true);
-
-                currentScene = 4;
-            }
-
-            else if (currentEnemyIndex >= enemies.Length)
-            {
-                Console.WriteLine("Congradulations, you have reached the end of the game.");
-                Console.ReadKey(true);
                 Console.Clear();
 
-                currentScene = 3;
+                currentScene++;
             }
 
-            else if (enemy.health == 0)
+            else if (currentEnemy.health == 0)
             {
-                Console.WriteLine($"You slayed the {enemy.name}");
+                Console.WriteLine($"You slayed the {currentEnemy.name}");
                 Console.ReadKey(true);
                 Console.Clear();
                 currentEnemyIndex++;
@@ -346,6 +317,10 @@ namespace BattleArena
         bool TryEndGame()
         {
             bool gameOver = currentEnemyIndex >= enemies.Length;
+
+            Console.WriteLine("Congradulations, you have reached the end of the game.");
+            Console.ReadKey(true);
+            Console.Clear();
 
             if (gameOver)
                 currentScene = 3;
