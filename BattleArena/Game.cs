@@ -83,6 +83,7 @@ namespace BattleArena
         public void End()
         {
             Console.WriteLine("Goodbye!");
+            Console.ReadKey(true);
         }
 
         /// <summary>
