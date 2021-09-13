@@ -28,7 +28,6 @@ namespace BattleArena
         Character strangeMan;
         Character alien;
         Character skeleton;
-        Character unclePhil;
 
         /// <summary>
         /// Function that starts the main game loop
