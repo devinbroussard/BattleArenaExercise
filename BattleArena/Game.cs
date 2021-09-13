@@ -4,6 +4,8 @@ using System.Text;
 
 namespace BattleArena
 {
+//test commit
+
     /// <summary>
     /// Represents any entity that exists in game
     /// </summary>
