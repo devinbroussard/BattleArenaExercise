@@ -49,15 +49,22 @@ namespace BattleArena
 
         public float TakeDamage(float damageAmount)
         {
-            float damageTaken = damageAmount = DefensePower;
+            float damageTaken = damageAmount - DefensePower;
 
-            if (damageTaken > 0) 
+            if (damageTaken <= 0) 
                 damageTaken = 0;
 
             _health -= damageTaken;
 
+            if (_health < 0)
+                _health = 0;
+
             return damageTaken;
         }
 
+        public float Attack(Entity defender)
+        {
+            return defender.TakeDamage(AttackPower);
+        }
     }
 }

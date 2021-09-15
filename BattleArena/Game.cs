@@ -36,14 +36,8 @@ namespace BattleArena
         {
             _gameOver = false;
             _currentScene = 0;
-            _currentEnemyIndex = 0;
-            Entity skeleton = new Entity("Skeleton", 10, 5, 0);
-            Entity buffAlien = new Entity("Buff Alien", 15, 30, 10);
-            Entity strangeMan = new Entity("Strange Man", 20, 15, 5);
-            _enemies = new Entity[] { skeleton, buffAlien, strangeMan };
 
-            _currentEnemyIndex = 0;
-            _currentEnemy = _enemies[_currentEnemyIndex];
+            InitializeEnemies();
         }
 
         /// <summary>
@@ -61,6 +55,18 @@ namespace BattleArena
         {
             Console.WriteLine("Goodbye!");
             Console.ReadKey(true);
+        }
+
+        public void InitializeEnemies()
+        {
+            Entity skeleton = new Entity("Skeleton", 10, 5, 0);
+            Entity buffAlien = new Entity("Buff Alien", 15, 30, 10);
+            Entity strangeMan = new Entity("Strange Man", 20, 15, 5);
+            _enemies = new Entity[] { skeleton, buffAlien, strangeMan };
+
+            _currentEnemyIndex = 0;
+            _currentEnemy = _enemies[_currentEnemyIndex];
+
         }
 
         /// <summary>
@@ -142,7 +148,7 @@ namespace BattleArena
 
             if (input == 1)
             {
-                ResetCurrentEnemy();
+                InitializeEnemies();
                 _currentScene = 0;
             }
             else if (input == 2)
@@ -197,36 +203,6 @@ namespace BattleArena
         }
 
         /// <summary>
-        /// Calculates the amount of damage that will be done to a character
-        /// </summary>
-        /// <param name="attackPower">The attacking character's attack power</param>
-        /// <param name="defensePower">The defending character's defense power</param>
-        /// <returns>The amount of damage done to the defender</returns>
-        float CalculateDamage(float attackPower, float defensePower)
-        {
-            float damage = attackPower - defensePower;
-            if (damage < 0) damage = 0;
-
-            return damage;
-        }
-
-        /// <summary>
-        /// Deals damage to a character based on an attacker's attack power
-        /// </summary>
-        /// <param name="attacker">The character that initiated the attack</param>
-        /// <param name="defender">The character that is being attacked</param>
-        /// <returns>The amount of damage done to the defender</returns>
-        public float Attack(ref Character attacker, ref Character defender)
-        {
-            float damage = CalculateDamage(attacker.attackPower, defender.defensePower);
-
-            defender.health -= damage;
-            if (defender.health < 0) defender.health = 0;
-
-            return damage;
-        }
- 
-        /// <summary>
         /// Simulates one turn in the current monster fight
         /// </summary>
         public void Battle()
@@ -234,15 +210,15 @@ namespace BattleArena
                 DisplayStats(_player);
                 DisplayStats(_currentEnemy);
 
-                int input = GetInput($"A {_currentEnemy.name} stands in front of you! What will you do:", "Attack", "Dodge");
+                int input = GetInput($"A {_currentEnemy.Name} stands in front of you! What will you do:", "Attack", "Dodge");
 
                 if (input == 1)
                 {
-                    float damage = Attack(ref _player, ref _currentEnemy);
+                    float damage = _player.Attack(_currentEnemy);
                     Console.WriteLine($"You dealt {damage} damage!");
 
-                    damage = Attack(ref _currentEnemy, ref _player);
-                    Console.WriteLine($"The {_currentEnemy.name} dealt {damage} damage!");
+                    damage = _currentEnemy.Attack(_player);
+                    Console.WriteLine($"The {_currentEnemy.Name} dealt {damage} damage!");
                     Console.ReadKey(true);
                     Console.Clear();
                 }
@@ -260,7 +236,7 @@ namespace BattleArena
         /// </summary>
         void CheckBattleResults()
         {
-            if (_player.health == 0)
+            if (_player.Health == 0)
             {
                 Console.WriteLine("You died!");
                 Console.WriteLine("Game over!");
@@ -270,9 +246,9 @@ namespace BattleArena
                 _currentScene++;
             }
 
-            else if (_currentEnemy.health == 0)
+            else if (_currentEnemy.Health == 0)
             {
-                Console.WriteLine($"You slayed the {_currentEnemy.name}");
+                Console.WriteLine($"You slayed the {_currentEnemy.Name}");
                 Console.ReadKey(true);
                 Console.Clear();
                 _currentEnemyIndex++;
