@@ -20,7 +20,7 @@ namespace BattleArena
         /// Function that starts the main game loop
         /// </summary>
         public void Run()
-        {
+        { 
             Start();
 
             while (!_gameOver)
