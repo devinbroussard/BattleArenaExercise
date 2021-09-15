@@ -318,12 +318,13 @@ namespace BattleArena
         {
             bool gameOver = currentEnemyIndex >= enemies.Length;
 
-            Console.WriteLine("Congradulations, you have reached the end of the game.");
-            Console.ReadKey(true);
-            Console.Clear();
-
             if (gameOver)
+            {
+                Console.WriteLine("Congradulations, you have reached the end of the game.");
+                Console.ReadKey(true);
+                Console.Clear();
                 currentScene = 3;
+            }
 
             return gameOver;
         }
