@@ -39,6 +39,7 @@ namespace BattleArena
             _attackPower = 0;
             _defensePower = 0;
         }
+
         public Entity(string name, float health, float attackPower, float defensePower)
         {
             _name = name;

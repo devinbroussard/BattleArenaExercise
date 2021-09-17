@@ -4,7 +4,11 @@ using System.Text;
 
 namespace BattleArena
 {
-
+    public struct Item
+    {
+        public string Name;
+        public float StatBoost;
+    }
     class Game
     {
         //Initializing variables
@@ -15,6 +19,8 @@ namespace BattleArena
         private int _currentEnemyIndex;
         private Entity _currentEnemy;
         private string _playerName;
+        private Item[] _wizardItems;
+        private Item[] _knightItems;
 
         /// <summary>
         /// Function that starts the main game loop
@@ -38,6 +44,7 @@ namespace BattleArena
             _currentScene = 0;
 
             InitializeEnemies();
+            InitializeItems();
         }
 
         /// <summary>
@@ -55,6 +62,21 @@ namespace BattleArena
         {
             Console.WriteLine("Goodbye!");
             Console.ReadKey(true);
+        }
+
+        public void InitializeItems()
+        {
+            //Wizard items
+            Item bigWand = new Item { Name = "Big Wand", StatBoost = 5 };
+            Item bigShield = new Item { Name = "Big Shield", StatBoost = 15 };
+
+            //Knight items
+            Item wand = new Item { Name = "Wand", StatBoost = 10 };
+            Item shoes = new Item { Name = "Shoes", StatBoost = 30 };
+
+            //Initialize items arrays
+            _wizardItems = new Item[] { bigWand, bigShield };
+            _knightItems = new Item[] { wand, shoes };
         }
 
         public void InitializeEnemies()
@@ -274,6 +296,6 @@ namespace BattleArena
 
             return gameOver;
         }
-
     }
+    
 }
