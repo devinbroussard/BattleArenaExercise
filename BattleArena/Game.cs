@@ -22,18 +22,25 @@ namespace BattleArena
         private Item[] _wizardItems;
         private Item[] _knightItems;
 
-        /// <summary>
-        /// Function that starts the main game loop
-        /// </summary>
+        ///// <summary>
+        ///// Function that starts the main game loop
+        ///// </summary>
+        //public void Run()
+        //{ 
+        //    Start();
+
+        //    while (!_gameOver)
+        //        Update();
+
+        //    End();
+        //}
+
         public void Run()
-        { 
-            Start();
-
-            while (!_gameOver)
-                Update();
-
-            End();
+        {
+            AppendToArray(5, 1, 2, 3, 4);
         }
+
+
 
         /// <summary>
         /// Function used to initialize any starting values by default
@@ -91,6 +98,24 @@ namespace BattleArena
 
         }
 
+
+        int[] AppendToArray(int num, params int[] array)
+        {
+            int[] newArray = new int[array.Length + 1];
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                newArray[i] = array[i];
+            }
+
+            newArray[array.Length] = num;
+
+            foreach (int num1 in newArray)
+                Console.WriteLine(num1);
+
+            return newArray;
+        }
+
         int GetInput(string description, params string[] options)
         {
             string input = "";
@@ -126,6 +151,8 @@ namespace BattleArena
 
                 }
             }
+
+            return 1;
         }
 
         /// <summary>
