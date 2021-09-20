@@ -12,11 +12,13 @@ namespace BattleArena
         public ItemType Type;
     }
 
+    public enum Scene { STARTMENU, ENTERNAME, CHARACTERSELECTION, BATTLE, RESTARTMENU }
+
     class Game
     {
         //Initializing variables
         private bool _gameOver;
-        private int _currentScene;
+        private Scene _currentScene;
         private Player _player;
         private Entity[] _enemies;
         private int _currentEnemyIndex;
@@ -86,19 +88,62 @@ namespace BattleArena
             writer.Close();
         }
 
+        public bool Load()
+        {
+            bool loadSuccessful = true;
+            //Creating a new instance of the player
+            _player = new Player();
+
+            //If the file doesn't exist return false
+            if (File.Exists("SavaData.txt"))
+                loadSuccessful = false;
+
+            //Creating a reader to read from the text file
+            StreamReader reader = new StreamReader("SaveData.txt");
+
+            //If the first line can't be converted to an integer then return false
+            if (!int.TryParse(reader.ReadLine(), out _currentEnemyIndex))
+                loadSuccessful = false;
+
+            string job = reader.ReadLine();
+
+            if (job == "Wizard")
+                _player = new Player(_wizardItems);
+            if (job == "Knight")
+                _player = new Player(_knightItems);
+
+            _player.Job = job;
+
+            if (!_player.Load(reader))
+                loadSuccessful = false;
+
+            if (!_currentEnemy.Load(reader))
+                loadSuccessful = false;
+
+            //Set current enmy to the new current enemy index
+            _enemies[_currentEnemyIndex] = _currentEnemy;
+
+            _currentScene = Scene.BATTLE;
+
+            //Closes reader
+            reader.Close();
+
+            return loadSuccessful;
+        }
+
         public void InitializeItems()
         {
             //Wizard items
-            Item bigWand = new Item { Name = "Big Wand", StatBoost = 5, Type = ItemType.ATTACK  };
-            Item bigShield = new Item { Name = "Big Shield", StatBoost = 15, Type = ItemType.DEFENSE };
+            Item wand = new Item { Name = "Wand", StatBoost = 20, Type = ItemType.ATTACK  };
+            Item cloak = new Item { Name = "Cloak", StatBoost = 15, Type = ItemType.DEFENSE };
 
             //Knight items
-            Item wand = new Item { Name = "Wand", StatBoost = 10, Type = ItemType.ATTACK };
-            Item shoes = new Item { Name = "Shoes", StatBoost = 30, Type = ItemType.DEFENSE };
+            Item sword = new Item { Name = "Sword", StatBoost = 10, Type = ItemType.ATTACK };
+            Item shield = new Item { Name = "Shield", StatBoost = 30, Type = ItemType.DEFENSE };
 
             //Initialize items arrays
-            _wizardItems = new Item[] { bigWand, bigShield };
-            _knightItems = new Item[] { wand, shoes };
+            _wizardItems = new Item[] { wand, cloak };
+            _knightItems = new Item[] { sword, shield };
         }
 
         public void InitializeEnemies()
@@ -111,26 +156,6 @@ namespace BattleArena
             _currentEnemyIndex = 0;
             _currentEnemy = _enemies[_currentEnemyIndex];
 
-        }
-
-
-        int[] AppendToArray(int num, int[] array)
-        {
-            //Create a new array with one more slot than the old array
-            int[] newArray = new int[array.Length + 1];
-
-            //Copy the values from the old array into the new array
-            for (int i = 0; i < array.Length; i++)
-            {
-                newArray[i] = array[i];
-            }
-
-            //Set the last index to be the new item
-            foreach (int num1 in newArray)
-                Console.WriteLine(num1);
-
-            //Return the new array
-            return newArray;
         }
 
         int GetInput(string description, params string[] options)
@@ -186,26 +211,56 @@ namespace BattleArena
         {
             switch (_currentScene)
             {
-                case 0:
+                case Scene.STARTMENU:
+                    DisplayStartMenu();
+                    break;
+                case Scene.ENTERNAME:
                     GetPlayerName();
                     break;
-                case 1:
+                case Scene.CHARACTERSELECTION:
                     CharacterSelection();
                     break;
-                case 2:
+                case Scene.BATTLE:
                     Battle();
                     CheckBattleResults();
                     break;
-                case 3:
-                    DisplayMainMenu();
+                case Scene.RESTARTMENU:
+                    DisplayRestartMenu();
                     break;
+            }
+        }
+
+        void DisplayStartMenu()
+        {
+            int input = GetInput("Welcome to Battle Arena!", "New Game", "Load Game");
+
+            if (input == 0)
+            {
+                _currentScene = Scene.ENTERNAME;
+            }
+            else if (input == 1)
+            {
+                if (Load())
+                {
+                    Console.Clear();
+                    Console.WriteLine("Load successful!");
+                    Console.ReadKey(true);
+                    Console.Clear();
+                    _currentScene = Scene.BATTLE;
+                }
+                else
+                {
+                    Console.WriteLine("Load failed.");
+                    Console.ReadKey(true);
+                    Console.Clear();
+                }
             }
         }
 
         /// <summary>
         /// Displays the menu that allows the player to start or quit the game
         /// </summary>
-        void DisplayMainMenu()
+        void DisplayRestartMenu()
         {
             int input = GetInput("Would you like to restart the game?", "Yes", "No");
 
@@ -246,9 +301,9 @@ namespace BattleArena
             int input = GetInput($"Okay, {_playerName}, select a class:", "Wizard", "Knight");
 
             if (input == 0)
-                _player = new Player(_playerName + " The Wizard", 50, 25, 5, _wizardItems);
+                _player = new Player(_playerName + " The Wizard", 50, 25, 5, _wizardItems, "Wizard");
             else if (input == 1)
-                _player = new Player(_playerName + " The Knight", 75, 20, 10, _knightItems);
+                _player = new Player(_playerName + " The Knight", 75, 20, 10, _knightItems, "Knight");
 
             _currentScene++;
         }
@@ -359,7 +414,7 @@ namespace BattleArena
                 Console.WriteLine("Congradulations, you have reached the end of the game.");
                 Console.ReadKey(true);
                 Console.Clear();
-                _currentScene = 3;
+                _currentScene = Scene.RESTARTMENU;
             }
 
             return gameOver;

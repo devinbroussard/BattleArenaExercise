@@ -12,9 +12,9 @@ namespace BattleArena
         private float _attackPower;
         private float _defensePower;
 
-        public string Name 
-        { 
-            get { return _name; } 
+        public string Name
+        {
+            get { return _name; }
         }
 
         public float Health
@@ -53,7 +53,7 @@ namespace BattleArena
         {
             float damageTaken = damageAmount - DefensePower;
 
-            if (damageTaken <= 0) 
+            if (damageTaken <= 0)
                 damageTaken = 0;
 
             _health -= damageTaken;
@@ -75,6 +75,24 @@ namespace BattleArena
             writer.WriteLine(_health);
             writer.WriteLine(_attackPower);
             writer.WriteLine(_defensePower);
+        }
+
+        public virtual bool Load(StreamReader reader)
+        {
+            //Get the name from the file
+            _name = reader.ReadLine();
+
+            //Checks whether or not the lines are ints and returns false if they are not
+            if (!float.TryParse(reader.ReadLine(), out _health))
+                return false;
+
+            if (!float.TryParse(reader.ReadLine(), out _attackPower))
+                return false;
+
+            if (!float.TryParse(reader.ReadLine(), out _defensePower))
+                return false;
+
+            return true;
         }
     }
 }
