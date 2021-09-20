@@ -9,6 +9,28 @@ namespace BattleArena
         private Item[] _items;
         private Item _currentItem;
 
+        public override float AttackPower
+        {
+            get
+            {
+                if (_currentItem.Type == 1)
+                    return base.AttackPower + CurrentItem.StatBoost;
+
+                return base.AttackPower;
+            }
+        }
+
+        public override float DefensePower
+        {
+            get
+            {
+                if (_currentItem.Type == 0)
+                    return base.DefensePower + CurrentItem.StatBoost;
+
+                return base.DefensePower;
+            }
+        }
+
         public Item CurrentItem
         {
             get { return _currentItem; }
@@ -48,6 +70,19 @@ namespace BattleArena
             _currentItem.Name = "Nothing";
 
             return true;
+        }
+
+        /// <returns>Get the name of all items in the player inventory</returns>
+        public string[] GetItemNames()
+        {
+            string[] itemNames= new string[_items.Length];
+
+            for (int i = 0; i < _items.Length; i++)
+            {
+                itemNames[i] = _items[i].Name;
+            }
+
+            return itemNames;
         }
     }
 }

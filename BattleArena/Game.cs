@@ -4,11 +4,15 @@ using System.Text;
 
 namespace BattleArena
 {
+    public enum ItemType { DEFENSE, ATTACK, NONE }
+
     public struct Item
     {
         public string Name;
         public float StatBoost;
+        public int Type;
     }
+
     class Game
     {
         //Initializing variables
@@ -22,25 +26,18 @@ namespace BattleArena
         private Item[] _wizardItems;
         private Item[] _knightItems;
 
-        ///// <summary>
-        ///// Function that starts the main game loop
-        ///// </summary>
-        //public void Run()
-        //{ 
-        //    Start();
-
-        //    while (!_gameOver)
-        //        Update();
-
-        //    End();
-        //}
-
+        /// <summary>
+        /// Function that starts the main game loop
+        /// </summary>
         public void Run()
         {
-            AppendToArray(5, 1, 2, 3, 4);
+            Start();
+
+            while (!_gameOver)
+                Update();
+
+            End();
         }
-
-
 
         /// <summary>
         /// Function used to initialize any starting values by default
@@ -74,12 +71,12 @@ namespace BattleArena
         public void InitializeItems()
         {
             //Wizard items
-            Item bigWand = new Item { Name = "Big Wand", StatBoost = 5 };
-            Item bigShield = new Item { Name = "Big Shield", StatBoost = 15 };
+            Item bigWand = new Item { Name = "Big Wand", StatBoost = 5, Type = 1  };
+            Item bigShield = new Item { Name = "Big Shield", StatBoost = 15, Type = 0 };
 
             //Knight items
-            Item wand = new Item { Name = "Wand", StatBoost = 10 };
-            Item shoes = new Item { Name = "Shoes", StatBoost = 30 };
+            Item wand = new Item { Name = "Wand", StatBoost = 10, Type = 0 };
+            Item shoes = new Item { Name = "Shoes", StatBoost = 30, Type = 1 };
 
             //Initialize items arrays
             _wizardItems = new Item[] { bigWand, bigShield };
@@ -99,20 +96,22 @@ namespace BattleArena
         }
 
 
-        int[] AppendToArray(int num, params int[] array)
+        int[] AppendToArray(int num, int[] array)
         {
+            //Create a new array with one more slot than the old array
             int[] newArray = new int[array.Length + 1];
 
+            //Copy the values from the old array into the new array
             for (int i = 0; i < array.Length; i++)
             {
                 newArray[i] = array[i];
             }
 
-            newArray[array.Length] = num;
-
+            //Set the last index to be the new item
             foreach (int num1 in newArray)
                 Console.WriteLine(num1);
 
+            //Return the new array
             return newArray;
         }
 
@@ -148,11 +147,18 @@ namespace BattleArena
                         Console.WriteLine("Invalid input.");
                         Console.ReadKey(true);
                     }
-
                 }
-            }
+                //If the player didn't type an int
+                else
+                {
+                    inputReceived = -1;
+                    Console.WriteLine("Invalid input.");
+                    Console.ReadKey(true);
+                }
 
-            return 1;
+                Console.Clear();
+            }
+            return inputReceived;
         }
 
         /// <summary>
@@ -185,12 +191,12 @@ namespace BattleArena
         {
             int input = GetInput("Would you like to restart the game?", "Yes", "No");
 
-            if (input == 1)
+            if (input == 0)
             {
                 InitializeEnemies();
                 _currentScene = 0;
             }
-            else if (input == 2)
+            else if (input == 1)
                 _gameOver = true;
 
         }
@@ -209,7 +215,7 @@ namespace BattleArena
             Console.Clear();
             int input = GetInput($"Hmm... Are you sure {_playerName} is your name?", "Yes", "No");
 
-            if (input == 1)
+            if (input == 0)
                 _currentScene++;
         }
 
@@ -221,9 +227,9 @@ namespace BattleArena
         {
             int input = GetInput($"Okay, {_playerName}, select a class:", "Wizard", "Knight");
 
-            if (input == 1)
+            if (input == 0)
                 _player = new Player(_playerName + " The Wizard", 50, 25, 5, _wizardItems);
-            else if (input == 2)
+            else if (input == 1)
                 _player = new Player(_playerName + " The Knight", 75, 20, 10, _knightItems);
 
             _currentScene++;
@@ -241,6 +247,22 @@ namespace BattleArena
             Console.WriteLine($"Defense Power: {entity.DefensePower}\n");
         }
 
+
+        public void DisplayEquipItemMenu()
+        {
+            //Get item inedex
+            int input = GetInput("Select an item to equip.", _player.GetItemNames());
+
+            //Equip item at given index
+            if (!_player.TryEquipItem(input))
+                Console.WriteLine("You couldn't find that item in your bag.");
+
+
+
+            //Print feedback 
+            Console.WriteLine($"You equipped {_player.CurrentItem.Name}!");
+        }
+
         /// <summary>
         /// Simulates one turn in the current monster fight
         /// </summary>
@@ -249,9 +271,9 @@ namespace BattleArena
                 DisplayStats(_player);
                 DisplayStats(_currentEnemy);
 
-                int input = GetInput($"A {_currentEnemy.Name} stands in front of you! What will you do:", "Attack", "Dodge");
+                int input = GetInput($"A {_currentEnemy.Name} stands in front of you! What will you do:", "Attack", "Equip Item", "Remove Current Item");
 
-                if (input == 1)
+                if (input == 0)
                 {
                     float damage = _player.Attack(_currentEnemy);
                     Console.WriteLine($"You dealt {damage} damage!");
@@ -261,11 +283,13 @@ namespace BattleArena
                     Console.ReadKey(true);
                     Console.Clear();
                 }
+                else if (input == 1)
+                {
+                    DisplayEquipItemMenu();
+                }
                 else if (input == 2)
                 {
-                    Console.WriteLine("You dodged the enemy's attack!");
-                    Console.ReadKey(true);
-                    Console.Clear();
+
                 }
         }
 
