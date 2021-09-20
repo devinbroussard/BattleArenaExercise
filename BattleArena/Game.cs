@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.IO;
 
 namespace BattleArena
 {
@@ -10,7 +9,7 @@ namespace BattleArena
     {
         public string Name;
         public float StatBoost;
-        public int Type;
+        public ItemType Type;
     }
 
     class Game
@@ -67,16 +66,35 @@ namespace BattleArena
             Console.WriteLine("Goodbye!");
             Console.ReadKey(true);
         }
+        
+        /// <summary>
+        /// Function called to save the game
+        /// </summary>
+        public void Save()
+        {
+            //streamwriter created that will save into vvvv
+            StreamWriter writer = new StreamWriter("SaveData.txt");
+
+            //Saves the current enemy
+            writer.WriteLine(_currentEnemyIndex);
+
+            //Save the characters' stats
+            _player.Save(writer);
+            _currentEnemy.Save(writer);
+
+            //Closes the writer
+            writer.Close();
+        }
 
         public void InitializeItems()
         {
             //Wizard items
-            Item bigWand = new Item { Name = "Big Wand", StatBoost = 5, Type = 1  };
-            Item bigShield = new Item { Name = "Big Shield", StatBoost = 15, Type = 0 };
+            Item bigWand = new Item { Name = "Big Wand", StatBoost = 5, Type = ItemType.ATTACK  };
+            Item bigShield = new Item { Name = "Big Shield", StatBoost = 15, Type = ItemType.DEFENSE };
 
             //Knight items
-            Item wand = new Item { Name = "Wand", StatBoost = 10, Type = 0 };
-            Item shoes = new Item { Name = "Shoes", StatBoost = 30, Type = 1 };
+            Item wand = new Item { Name = "Wand", StatBoost = 10, Type = ItemType.ATTACK };
+            Item shoes = new Item { Name = "Shoes", StatBoost = 30, Type = ItemType.DEFENSE };
 
             //Initialize items arrays
             _wizardItems = new Item[] { bigWand, bigShield };
@@ -255,9 +273,9 @@ namespace BattleArena
 
             //Equip item at given index
             if (!_player.TryEquipItem(input))
+            {
                 Console.WriteLine("You couldn't find that item in your bag.");
-
-
+            }
 
             //Print feedback 
             Console.WriteLine($"You equipped {_player.CurrentItem.Name}!");
@@ -268,29 +286,38 @@ namespace BattleArena
         /// </summary>
         public void Battle()
         {
-                DisplayStats(_player);
-                DisplayStats(_currentEnemy);
+            DisplayStats(_player);
+            DisplayStats(_currentEnemy);
 
-                int input = GetInput($"A {_currentEnemy.Name} stands in front of you! What will you do:", "Attack", "Equip Item", "Remove Current Item");
+            int input = GetInput($"A {_currentEnemy.Name} stands in front of you! What will you do:", "Attack", "Equip Item", "Remove Current Item", "Save Game");
 
-                if (input == 0)
-                {
-                    float damage = _player.Attack(_currentEnemy);
-                    Console.WriteLine($"You dealt {damage} damage!");
+            if (input == 0)
+            {
+                float damage = _player.Attack(_currentEnemy);
+                Console.WriteLine($"You dealt {damage} damage!");
 
-                    damage = _currentEnemy.Attack(_player);
-                    Console.WriteLine($"The {_currentEnemy.Name} dealt {damage} damage!");
-                    Console.ReadKey(true);
-                    Console.Clear();
-                }
-                else if (input == 1)
-                {
-                    DisplayEquipItemMenu();
-                }
-                else if (input == 2)
-                {
+                damage = _currentEnemy.Attack(_player);
+                Console.WriteLine($"The {_currentEnemy.Name} dealt {damage} damage!");
+            }
+            else if (input == 1)
+            {
+                DisplayEquipItemMenu();
+            }
+            else if (input == 2)
+            {
+                if (!_player.TryRemoveCurrentItem())
+                    Console.WriteLine("You don't have anything equipped.");
+                else
+                    Console.WriteLine("You placed the item in your bag.");
+            }
+            else if (input == 3)
+            {
+                Save();
+                Console.WriteLine("Game saved successfully!");
+            }
 
-                }
+            Console.ReadKey(true);
+            Console.Clear();
         }
 
         /// <summary>
